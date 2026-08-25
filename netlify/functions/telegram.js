@@ -505,11 +505,26 @@ async function handleDraftCallback(cbq) {
 }
 
 exports.handler = async (event) => {
+  // Диагностика: открыть URL функции в браузере (GET-запрос) покажет,
+  // какие переменные окружения реально видит функция — без утечки самих значений.
+  if (event.httpMethod === 'GET') {
+    return {
+      statusCode: 200,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        tokenConfigured: !!TOKEN,
+        secretConfigured: !!WEBHOOK_SECRET,
+        secretLength: WEBHOOK_SECRET ? WEBHOOK_SECRET.length : 0,
+        allowedUserConfigured: !!ALLOWED_USER_ID,
+      }),
+    };
+  }
+
   if (!TOKEN) return { statusCode: 500, body: 'TELEGRAM_BOT_TOKEN is not configured' };
 
   if (WEBHOOK_SECRET) {
-    const secret = event.headers['x-telegram-bot-api-secret-token'] || event.headers['X-Telegram-Bot-Api-Secret-Token'];
-    if (secret !== WEBHOOK_SECRET) return { statusCode: 401, body: 'unauthorized' };
+    const secret = (event.headers['x-telegram-bot-api-secret-token'] || event.headers['X-Telegram-Bot-Api-Secret-Token'] || '').trim();
+    if (secret !== WEBHOOK_SECRET.trim()) return { statusCode: 401, body: 'unauthorized' };
   }
 
   let update;
