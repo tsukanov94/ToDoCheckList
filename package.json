@@ -1,0 +1,9 @@
+{
+  "name": "todo-pwa-telegram",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Планировщик задач: PWA + Telegram-бот с общими данными (Netlify Functions + Netlify Blobs).",
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0"
+  }
+}
